@@ -33,7 +33,7 @@ fn main() {
         }
 
         if rl.is_key_pressed(KeyboardKey::KEY_SPACE) {
-            venate(&rl, &mut auxins, &mut veins);
+            draw_venation_step(&rl, &mut auxins, &mut veins);
         }
 
         let mut drawing = rl.begin_drawing(&rl_thread);
@@ -89,7 +89,7 @@ fn init(rl: &RaylibHandle, auxins: &mut Vec<Vector2>, veins: &mut Vec<Vein>) {
     kill_auxins_by_auximity(auxins, veins);
 }
 
-fn venate(rl: &RaylibHandle, auxins: &mut Vec<Vector2>, veins: &mut Vec<Vein>) {
+fn draw_venation_step(rl: &RaylibHandle, auxins: &mut Vec<Vector2>, veins: &mut Vec<Vein>) {
     calc_growth_dir(auxins, veins);
     grow_new_veins(veins);
     kill_auxins_by_auximity(auxins, veins);
