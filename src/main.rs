@@ -122,9 +122,9 @@ fn calc_growth_dir(auxins: &mut [Vector2], veins: &mut [Vein]) {
         return;
     }
 
-    veins.iter_mut().for_each(|vein| {
-        vein.direction = Vector2::zero();
-    });
+    veins
+        .iter_mut()
+        .for_each(|vein| vein.direction = Vector2::zero());
 
     for auxin in auxins.iter() {
         let mut closest = 0usize;
