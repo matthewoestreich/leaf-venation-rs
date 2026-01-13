@@ -95,15 +95,15 @@ fn init(rl: &RaylibHandle, auxins: &mut Vec<Vector2>, veins: &mut Vec<Vein>) {
     veins.push(Vein::new(Vector2::new(width, height)));
 
     spray_auxins(rl, auxins);
-    kill_auxins_by_auximity(auxins, veins);
+    kill_auxins_by_vein_proximity(auxins, veins);
 }
 
 fn draw_venation_step(rl: &RaylibHandle, auxins: &mut Vec<Vector2>, veins: &mut Vec<Vein>) {
     calc_growth_dir(auxins, veins);
     grow_new_veins(veins);
-    kill_auxins_by_auximity(auxins, veins);
+    kill_auxins_by_vein_proximity(auxins, veins);
     spray_auxins(rl, auxins);
-    kill_auxins_by_auximity(auxins, veins);
+    kill_auxins_by_vein_proximity(auxins, veins);
 }
 
 fn spray_auxins(rl: &RaylibHandle, auxins: &mut Vec<Vector2>) {
@@ -117,7 +117,7 @@ fn spray_auxins(rl: &RaylibHandle, auxins: &mut Vec<Vector2>) {
     }
 }
 
-fn kill_auxins_by_auximity(auxins: &mut Vec<Vector2>, veins: &mut [Vein]) {
+fn kill_auxins_by_vein_proximity(auxins: &mut Vec<Vector2>, veins: &mut [Vein]) {
     let mut to_remove = vec![];
 
     for (index, auxin) in auxins.iter().enumerate() {
