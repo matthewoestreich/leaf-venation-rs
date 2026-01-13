@@ -13,3 +13,5 @@ cargo run
 ```
 
 Then press the `space` key to watch veins grow!
+
+Press `r` key to reset.

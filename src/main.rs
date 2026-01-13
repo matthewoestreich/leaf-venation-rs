@@ -25,19 +25,15 @@ fn main() {
     let mut veins = vec![];
     let mut auxins = vec![];
 
-    init(&rl, &mut veins, &mut auxins);
+    init(&rl, &mut auxins, &mut veins);
 
     while !rl.window_should_close() {
         if rl.is_key_pressed(KeyboardKey::KEY_R) {
-            init(&rl, &mut veins, &mut auxins);
+            init(&rl, &mut auxins, &mut veins);
         }
 
         if rl.is_key_pressed(KeyboardKey::KEY_SPACE) {
-            calc_growth_dir(&mut auxins, &mut veins);
-            grow_new_veins(&mut veins);
-            kill_auxins_by_auximity(&mut auxins, &mut veins);
-            spray_auxins(&rl, &mut auxins);
-            kill_auxins_by_auximity(&mut auxins, &mut veins);
+            venate(&rl, &mut auxins, &mut veins);
         }
 
         let mut drawing = rl.begin_drawing(&rl_thread);
@@ -83,13 +79,20 @@ impl Vein {
     }
 }
 
-fn init(rl: &RaylibHandle, veins: &mut Vec<Vein>, auxins: &mut Vec<Vector2>) {
-    let width = rl.get_screen_width();
-    let height = rl.get_screen_height();
-    let seed_vein_position = Vector2::new((width / 2) as f32, (height * 2 / 3) as f32);
+fn init(rl: &RaylibHandle, auxins: &mut Vec<Vector2>, veins: &mut Vec<Vein>) {
     veins.clear();
-    veins.push(Vein::new(seed_vein_position));
     auxins.clear();
+    let width = (rl.get_screen_width() / 2) as f32;
+    let height = (rl.get_screen_height() * 2 / 3) as f32;
+    veins.push(Vein::new(Vector2::new(width, height)));
+    spray_auxins(rl, auxins);
+    kill_auxins_by_auximity(auxins, veins);
+}
+
+fn venate(rl: &RaylibHandle, auxins: &mut Vec<Vector2>, veins: &mut Vec<Vein>) {
+    calc_growth_dir(auxins, veins);
+    grow_new_veins(veins);
+    kill_auxins_by_auximity(auxins, veins);
     spray_auxins(rl, auxins);
     kill_auxins_by_auximity(auxins, veins);
 }
