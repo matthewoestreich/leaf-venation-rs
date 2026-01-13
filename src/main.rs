@@ -119,7 +119,6 @@ fn kill_auxins_by_auximity(auxins: &mut Vec<Vector2>, veins: &mut [Vein]) {
 
 fn calc_growth_dir(auxins: &mut [Vector2], veins: &mut [Vein]) {
     if veins.is_empty() {
-        println!("calc_growth_dir : veins is empty!");
         return;
     }
 
