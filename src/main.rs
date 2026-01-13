@@ -1,4 +1,10 @@
-use raylib::{RaylibHandle, color::Color, ffi::KeyboardKey, math::Vector2, prelude::RaylibDraw};
+use raylib::{
+    RaylibHandle,
+    color::Color,
+    ffi::KeyboardKey,
+    math::Vector2,
+    prelude::{RaylibDraw, RaylibDrawHandle},
+};
 
 const VEIN_RADIUS: f32 = 5.0;
 const VEIN_DIRECTION_SCALE: f32 = 20.0;
@@ -33,41 +39,15 @@ fn main() {
         if rl.is_key_pressed(KeyboardKey::KEY_R) {
             init(&rl, &mut auxins, &mut veins);
         }
-
         if rl.is_key_pressed(KeyboardKey::KEY_SPACE) {
-            draw_venation_step(&rl, &mut auxins, &mut veins);
+            calc_venation_step(&rl, &mut auxins, &mut veins);
         }
 
         let mut drawing = rl.begin_drawing(&rl_thread);
-
         drawing.set_target_fps(60);
         drawing.clear_background(Color::get_color(0x181818FF));
-
-        for vein in veins.iter_mut() {
-            drawing.draw_circle(
-                vein.position.x as i32,
-                vein.position.y as i32,
-                VEIN_RADIUS,
-                VEIN_COLOR,
-            );
-            drawing.draw_circle(
-                vein.position.x as i32,
-                vein.position.y as i32,
-                VEIN_RADIUS / 2f32,
-                VEIN_CORE_COLOR,
-            );
-
-            vein.direction.scale(VEIN_DIRECTION_SCALE);
-            drawing.draw_line_v(
-                vein.position,
-                vein.position + vein.direction,
-                VEIN_DIRECTION_LINE_COLOR,
-            );
-        }
-
-        for auxin in auxins.iter() {
-            drawing.draw_circle(auxin.x as i32, auxin.y as i32, AUXIN_RADIUS, AUXIN_COLOR);
-        }
+        draw_veins(&mut drawing, &mut veins);
+        draw_auxins(&mut drawing, &auxins);
     }
 }
 
@@ -98,12 +78,42 @@ fn init(rl: &RaylibHandle, auxins: &mut Vec<Vector2>, veins: &mut Vec<Vein>) {
     kill_auxins_by_vein_proximity(auxins, veins);
 }
 
-fn draw_venation_step(rl: &RaylibHandle, auxins: &mut Vec<Vector2>, veins: &mut Vec<Vein>) {
+fn calc_venation_step(rl: &RaylibHandle, auxins: &mut Vec<Vector2>, veins: &mut Vec<Vein>) {
     calc_growth_dir(auxins, veins);
     grow_new_veins(veins);
     kill_auxins_by_vein_proximity(auxins, veins);
     spray_auxins(rl, auxins);
     kill_auxins_by_vein_proximity(auxins, veins);
+}
+
+fn draw_veins(draw_handle: &mut RaylibDrawHandle, veins: &mut [Vein]) {
+    for vein in veins.iter_mut() {
+        draw_handle.draw_circle(
+            vein.position.x as i32,
+            vein.position.y as i32,
+            VEIN_RADIUS,
+            VEIN_COLOR,
+        );
+        draw_handle.draw_circle(
+            vein.position.x as i32,
+            vein.position.y as i32,
+            VEIN_RADIUS / 2f32,
+            VEIN_CORE_COLOR,
+        );
+
+        vein.direction.scale(VEIN_DIRECTION_SCALE);
+        draw_handle.draw_line_v(
+            vein.position,
+            vein.position + vein.direction,
+            VEIN_DIRECTION_LINE_COLOR,
+        );
+    }
+}
+
+fn draw_auxins(draw_handle: &mut RaylibDrawHandle, auxins: &[Vector2]) {
+    for auxin in auxins.iter() {
+        draw_handle.draw_circle(auxin.x as i32, auxin.y as i32, AUXIN_RADIUS, AUXIN_COLOR);
+    }
 }
 
 fn spray_auxins(rl: &RaylibHandle, auxins: &mut Vec<Vector2>) {
