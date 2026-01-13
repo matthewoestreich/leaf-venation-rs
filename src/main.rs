@@ -22,17 +22,16 @@ fn main() {
         .title("Leaf Venation")
         .build();
 
-    let mut vein = Vein::new();
-    vein.position.x = (width / 2) as f32;
-    vein.position.y = (height * 2 / 3) as f32;
-
-    let mut veins = vec![vein];
+    let mut veins = vec![];
     let mut auxins = vec![];
 
-    spray_auxins(&rl, &mut auxins);
-    kill_auxins_by_auximity(&mut auxins, &mut veins);
+    init(&rl, &mut veins, &mut auxins);
 
     while !rl.window_should_close() {
+        if rl.is_key_pressed(KeyboardKey::KEY_R) {
+            init(&rl, &mut veins, &mut auxins);
+        }
+
         if rl.is_key_pressed(KeyboardKey::KEY_SPACE) {
             calc_growth_dir(&mut auxins, &mut veins);
             grow_new_veins(&mut veins);
@@ -69,24 +68,30 @@ fn main() {
     }
 }
 
+#[derive(Default)]
 struct Vein {
     position: Vector2,
     direction: Vector2,
 }
 
 impl Vein {
-    fn new() -> Self {
+    fn new(position: Vector2) -> Self {
         Self {
-            position: Vector2::default(),
-            direction: Vector2::default(),
+            position,
+            ..Default::default()
         }
     }
 }
 
-fn remove_unordered<T>(vec: &mut Vec<T>, index: usize) {
-    let last = vec.len() - 1;
-    vec.swap(index, last);
-    vec.pop();
+fn init(rl: &RaylibHandle, veins: &mut Vec<Vein>, auxins: &mut Vec<Vector2>) {
+    let width = rl.get_screen_width();
+    let height = rl.get_screen_height();
+    let seed_vein_position = Vector2::new((width / 2) as f32, (height * 2 / 3) as f32);
+    veins.clear();
+    veins.push(Vein::new(seed_vein_position));
+    auxins.clear();
+    spray_auxins(rl, auxins);
+    kill_auxins_by_auximity(auxins, veins);
 }
 
 fn spray_auxins(rl: &RaylibHandle, auxins: &mut Vec<Vector2>) {
@@ -113,7 +118,7 @@ fn kill_auxins_by_auximity(auxins: &mut Vec<Vector2>, veins: &mut [Vein]) {
     }
 
     for &i in to_remove.iter().rev() {
-        remove_unordered(auxins, i);
+        auxins.remove(i);
     }
 }
 
@@ -126,21 +131,21 @@ fn calc_growth_dir(auxins: &mut [Vector2], veins: &mut [Vein]) {
         .iter_mut()
         .for_each(|vein| vein.direction = Vector2::zero());
 
-    for auxin in auxins.iter() {
+    for &auxin in auxins.iter() {
         let mut closest = 0usize;
         for (i, vein) in veins.iter().enumerate() {
-            if vein.position.distance_to(*auxin) < veins[closest].position.distance_to(*auxin) {
+            if vein.position.distance_to(auxin) < veins[closest].position.distance_to(auxin) {
                 closest = i;
             }
         }
-        veins[closest].direction += *auxin - veins[closest].position;
+        veins[closest].direction += auxin - veins[closest].position;
     }
 
     veins.iter_mut().for_each(|vein| vein.direction.normalize());
 }
 
 fn grow_new_veins(veins: &mut Vec<Vein>) {
-    let mut new_veins_position = Vec::<Vector2>::new();
+    let mut new_vein_positions = Vec::<Vector2>::new();
 
     for vein in veins.iter_mut() {
         if vein.direction.x == 0f32 && vein.direction.y == 0f32 {
@@ -149,12 +154,13 @@ fn grow_new_veins(veins: &mut Vec<Vein>) {
         let x = vein.position.x + vein.direction.x * VEIN_RADIUS * 2f32;
         let y = vein.position.y + vein.direction.y * VEIN_RADIUS * 2f32;
         let vein_position = Vector2::new(x, y);
-        new_veins_position.push(vein_position);
+        new_vein_positions.push(vein_position);
     }
 
-    for &position in new_veins_position.iter() {
-        let mut new_vein = Vein::new();
-        new_vein.position = position;
-        veins.push(new_vein);
+    for &position in new_vein_positions.iter() {
+        veins.push(Vein {
+            position,
+            ..Default::default()
+        });
     }
 }
