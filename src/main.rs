@@ -1,17 +1,19 @@
 use raylib::{RaylibHandle, color::Color, ffi::KeyboardKey, math::Vector2, prelude::RaylibDraw};
 
 const VEIN_RADIUS: f32 = 5.0;
+const VEIN_DIRECTION_SCALE: f32 = 20.0;
+const VEIN_DIRECTION_LINE_COLOR: Color = Color::PURPLE;
 const VEIN_COLOR: Color = Color::WHITE;
 const VEIN_CORE_COLOR: Color = Color::BLACK;
-const AUXINS_RATE: usize = 20;
-const AUXINS_RADIUS: f32 = 5.0; // Should be same as VEIN_RADIUS
-const AUXINS_COLOR: Color = Color::RED;
-const AUXIMITY: f32 = 30.0;
+const AUXINS_SPRAY_RATE: usize = 20;
+const AUXIN_RADIUS: f32 = 5.0; // Should be same as VEIN_RADIUS
+const AUXIN_COLOR: Color = Color::RED;
+const AUXIN_TO_VEIN_PROXIMITY: f32 = 30.0; // Any auxins within this proximity to a vein will be killed.
 
 fn main() {
     assert_eq!(
-        VEIN_RADIUS, AUXINS_RADIUS,
-        "VEIN_RADIUS ({VEIN_RADIUS}) and AUXINS_RADIUS ({AUXINS_RADIUS}) should be equal!",
+        VEIN_RADIUS, AUXIN_RADIUS,
+        "VEIN_RADIUS ({VEIN_RADIUS}) and AUXINS_RADIUS ({AUXIN_RADIUS}) should be equal!",
     );
 
     let width = 800;
@@ -54,12 +56,17 @@ fn main() {
                 VEIN_RADIUS / 2f32,
                 VEIN_CORE_COLOR,
             );
-            vein.direction.scale(20f32);
-            drawing.draw_line_v(vein.position, vein.position + vein.direction, Color::PURPLE);
+
+            vein.direction.scale(VEIN_DIRECTION_SCALE);
+            drawing.draw_line_v(
+                vein.position,
+                vein.position + vein.direction,
+                VEIN_DIRECTION_LINE_COLOR,
+            );
         }
 
         for auxin in auxins.iter() {
-            drawing.draw_circle(auxin.x as i32, auxin.y as i32, AUXINS_RADIUS, AUXINS_COLOR);
+            drawing.draw_circle(auxin.x as i32, auxin.y as i32, AUXIN_RADIUS, AUXIN_COLOR);
         }
     }
 }
@@ -82,9 +89,11 @@ impl Vein {
 fn init(rl: &RaylibHandle, auxins: &mut Vec<Vector2>, veins: &mut Vec<Vein>) {
     veins.clear();
     auxins.clear();
+
     let width = (rl.get_screen_width() / 2) as f32;
     let height = (rl.get_screen_height() * 2 / 3) as f32;
     veins.push(Vein::new(Vector2::new(width, height)));
+
     spray_auxins(rl, auxins);
     kill_auxins_by_auximity(auxins, veins);
 }
@@ -101,7 +110,7 @@ fn spray_auxins(rl: &RaylibHandle, auxins: &mut Vec<Vector2>) {
     let height = rl.get_screen_height();
     let width = rl.get_screen_width();
 
-    for _ in 0..AUXINS_RATE {
+    for _ in 0..AUXINS_SPRAY_RATE {
         let x = rl.get_random_value::<i32>(0..width.saturating_sub(1)) as f32;
         let y = rl.get_random_value::<i32>(0..height.saturating_sub(1)) as f32;
         auxins.push(Vector2::new(x, y));
@@ -113,7 +122,7 @@ fn kill_auxins_by_auximity(auxins: &mut Vec<Vector2>, veins: &mut [Vein]) {
 
     for (index, auxin) in auxins.iter().enumerate() {
         for vein in veins.iter() {
-            if auxin.distance_to(vein.position) <= AUXIMITY {
+            if auxin.distance_to(vein.position) <= AUXIN_TO_VEIN_PROXIMITY {
                 to_remove.push(index);
                 break;
             }
