@@ -153,9 +153,9 @@ fn grow_new_veins(veins: &mut Vec<Vein>) {
         new_veins_position.push(vein_position);
     }
 
-    for position in new_veins_position.iter_mut() {
+    for &position in new_veins_position.iter() {
         let mut new_vein = Vein::new();
-        new_vein.position = *position;
+        new_vein.position = position;
         veins.push(new_vein);
     }
 }
