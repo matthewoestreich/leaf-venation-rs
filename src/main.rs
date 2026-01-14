@@ -20,7 +20,7 @@ const VEIN_CORE_COLOR: Color = Color::BLACK;
 const AUXINS_SPRAY_RATE: usize = 20;
 const AUXIN_RADIUS: f32 = 5.0; // Should be same as VEIN_RADIUS
 const AUXIN_COLOR: Color = Color::RED;
-const AUXIN_TO_VEIN_PROXIMITY: f32 = 30.0; // Any auxins within this proximity to a vein will be killed.
+const AUXIN_TO_VEIN_PROXIMITY: f32 = 30.0; // Auxins within this proximity to a vein will be killed.
 
 fn main() {
     assert_eq!(
