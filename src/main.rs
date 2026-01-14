@@ -106,9 +106,9 @@ fn init(
     veins.clear();
     auxins.clear();
 
-    let width = (rl.get_screen_width() / 2) as f32;
-    let height = (rl.get_screen_height() * 2 / 3) as f32;
-    veins.push(Vein::new(Vector2::new(width, height)));
+    let x = (rl.get_screen_width() / 2) as f32;
+    let y = (rl.get_screen_height() * 2 / 3) as f32;
+    veins.push(Vein::new(Vector2::new(x, y)));
 
     spray_auxins(rl, auxins, auxin_spray_rate);
     kill_auxins_by_vein_proximity(auxins, veins, proximity);
