@@ -1,3 +1,4 @@
+#![allow(clippy::assertions_on_constants)]
 use raylib::{
     RaylibHandle,
     color::Color,
@@ -26,6 +27,10 @@ fn main() {
     assert_eq!(
         VEIN_RADIUS, AUXIN_RADIUS,
         "VEIN_RADIUS ({VEIN_RADIUS}) and AUXINS_RADIUS ({AUXIN_RADIUS}) should be equal!",
+    );
+    assert!(
+        AUXIN_TO_VEIN_PROXIMITY >= 20.0,
+        "AUXIN_TO_VEIN_PROXIMITY ({AUXIN_TO_VEIN_PROXIMITY}) must be greater than or equal to 20.0!"
     );
 
     let (mut rl, rl_thread) = raylib::init()
@@ -124,7 +129,6 @@ fn calc_venation_step(
 ) {
     calc_growth_dir(auxins, veins);
     grow_new_veins(veins, vein_radius);
-    kill_auxins_by_vein_proximity(auxins, veins, proximity);
     spray_auxins(rl, auxins, auxin_spray_rate);
     kill_auxins_by_vein_proximity(auxins, veins, proximity);
 }
